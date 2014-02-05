@@ -117,7 +117,7 @@ module GoCardless
     # @param [Hash] params query string parameters
     # @return [Hash] hash the parsed response data
     def api_get(path, params = {})
-      request(:get, "#{API_PATH}#{path}", :params => params).parsed
+      request(:get, "#{API_PATH}#{path}", :params => params)
     end
 
     # Issue a POST request to the API server
@@ -127,7 +127,7 @@ module GoCardless
     # @param [Hash] data a hash of data that will be sent as the request body
     # @return [Hash] hash the parsed response data
     def api_post(path, data = {})
-      request(:post, "#{API_PATH}#{path}", :data => data).parsed
+      request(:post, "#{API_PATH}#{path}", :data => data)
     end
 
     # Issue a PUT request to the API server
@@ -137,7 +137,7 @@ module GoCardless
     # @param [Hash] data a hash of data that will be sent as the request body
     # @return [Hash] hash the parsed response data
     def api_put(path, data = {})
-      request(:put, "#{API_PATH}#{path}", :data => data).parsed
+      request(:put, "#{API_PATH}#{path}", :data => data)
     end
 
     # Issue a DELETE request to the API server
@@ -147,7 +147,7 @@ module GoCardless
     # @param [Hash] data a hash of data that will be sent as the request body
     # @return [Hash] hash the parsed response data
     def api_delete(path, data = {})
-      request(:delete, "#{API_PATH}#{path}", :data => data).parsed
+      request(:delete, "#{API_PATH}#{path}", :data => data)
     end
 
     # @method merchant
@@ -329,19 +329,18 @@ module GoCardless
       opts[:headers]['Accept'] = 'application/json'
       opts[:headers]['Content-Type'] = 'application/json' unless method == :get
       opts[:headers]['User-Agent'] = "gocardless-ruby/v#{GoCardless::VERSION}"
+      opts[:headers]["Authorization"] = "Bearer #{access_token}"
       opts[:body] = MultiJson.encode(opts[:data]) if !opts[:data].nil?
-
-      # Reset the URL in case the environment / base URL has been changed.
-      @oauth_client.site = base_url
-
-      header_keys = opts[:headers].keys.map(&:to_s)
-      if header_keys.map(&:downcase).include?('authorization')
-        @oauth_client.request(method, path, opts)
+      
+      if URI.parse(path).absolute?
+        url = path
       else
-        @access_token.send(method, path, opts)
+        url = base_url + path
       end
-    rescue OAuth2::Error => err
-      raise GoCardless::ApiError.new(err.response)
+      Rails.logger.info "Sending #{method} request to #{url}"
+      HTTParty.send(method, url, headers: opts[:headers], body: opts[:body]).parsed_response
+    #rescue => err
+      #raise GoCardless::ApiError.new(err)
     end
 
     # Add a signature to a Hash of parameters. The signature will be generated
