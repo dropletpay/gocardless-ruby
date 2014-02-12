@@ -337,8 +337,8 @@ module GoCardless
       else
         url = base_url + path
       end
-      Rails.logger.info "Sending #{method} request to #{url} with headers #{opts[:headers]} body #{opts[:body]}"
-      response = HTTParty.send(method, url, headers: opts[:headers], body: opts[:body].to_json)
+      Rails.logger.info "Sending #{method} request to #{url} with headers #{opts[:headers]} body #{opts[:data]}"
+      response = HTTParty.send(method, url, headers: opts[:headers], body: opts[:data].to_json)
       Rails.logger.info "Response from GC: status: #{response.code} body: #{response.parsed_response}"
       return response.parsed_response
     #rescue => err
