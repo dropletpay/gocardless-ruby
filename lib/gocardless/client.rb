@@ -330,7 +330,7 @@ module GoCardless
       opts[:headers]['Content-Type'] = 'application/json' unless method == :get
       opts[:headers]['User-Agent'] = "gocardless-ruby/v#{GoCardless::VERSION}"
       opts[:headers]["Authorization"] = "Bearer #{access_token}"
-      opts[:body] = MultiJson.encode(opts[:data]) if !opts[:data].nil?
+      #opts[:body] = MultiJson.encode(opts[:data]) if !opts[:data].nil?
       
       if URI.parse(path).absolute?
         url = path
@@ -338,7 +338,7 @@ module GoCardless
         url = base_url + path
       end
       Rails.logger.info "Sending #{method} request to #{url} with headers #{opts[:headers]} body #{opts[:body]}"
-      response = HTTParty.send(method, url, headers: opts[:headers], body: opts[:body])
+      response = HTTParty.send(method, url, headers: opts[:headers], body: opts[:body].to_json)
       Rails.logger.info "Response from GC: status: #{response.code} body: #{response.parsed_response}"
       return response.parsed_response
     #rescue => err
