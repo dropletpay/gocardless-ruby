@@ -329,7 +329,7 @@ module GoCardless
       opts[:headers]['Accept'] = 'application/json'
       opts[:headers]['Content-Type'] = 'application/json' unless method == :get
       opts[:headers]['User-Agent'] = "gocardless-ruby/v#{GoCardless::VERSION}"
-      opts[:headers]["Authorization"] = "Bearer #{access_token}"
+      opts[:headers]["Authorization"] = "Bearer #{access_token}" unless opts[:headers]["Authorization"]
       #opts[:body] = MultiJson.encode(opts[:data]) if !opts[:data].nil?
       
       if URI.parse(path).absolute?
