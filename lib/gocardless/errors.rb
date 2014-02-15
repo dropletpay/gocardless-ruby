@@ -9,7 +9,7 @@ module GoCardless
 
     def initialize(response)
       @response = response
-      @code = response.status
+      @code = response.code
       body = MultiJson.decode(response.body) rescue nil
       if body.is_a? Hash
         @description = body["error"] || response.body.strip || "Unknown error"

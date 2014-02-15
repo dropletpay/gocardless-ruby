@@ -340,9 +340,11 @@ module GoCardless
       Rails.logger.info "Sending #{method} request to #{url} with headers #{opts[:headers]} body #{opts[:data]}"
       response = HTTParty.send(method, url, headers: opts[:headers], body: opts[:data].to_json)
       Rails.logger.info "Response from GC: status: #{response.code} body: #{response.parsed_response}"
-      return response.parsed_response
-    #rescue => err
-      #raise GoCardless::ApiError.new(err)
+      if response.success?
+        return response.parsed_response
+      else
+        raise GoCardless::ApiError.new(response)
+      end
     end
 
     # Add a signature to a Hash of parameters. The signature will be generated
